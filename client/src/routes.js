@@ -9,14 +9,23 @@ import LoginPage from './login_stuff/Login';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
+import ProfilePage from './pages/ProfilePage';
 import Register from './login_stuff/Register';
 import Reset from './login_stuff/Reset';
 import User from './login_stuff/User';
+import Web_site from './pages/Home';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const logged=Boolean(window.localStorage.getItem("logged"));
   const routes = useRoutes([
+    { path: '', 
+      element:  logged? <User/>:<Web_site/>,
+      children: [
+        {element: <Navigate to="" />, index: true },
+      ],
+    },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
@@ -26,19 +35,20 @@ export default function Router() {
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
+        { path: 'Profile', element: <ProfilePage/> },
       ],
     },
     {
       path: 'login',
-      element: <LoginPage />,
+      element: logged? <User/>:<LoginPage />,
     },
     {
       path: 'register',
-      element: <Register/>,
+      element: logged? <User/>:<Register/>,
     },
     {
       path: 'reset',
-      element: <Reset/>,
+      element: logged? <User/>:<Reset/>,
     },
     {
       path: 'user',

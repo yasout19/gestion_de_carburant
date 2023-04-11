@@ -10,7 +10,9 @@ email:{type:String,},
 pwd:{type:String,},
 role:{type:String},
 age:{type:String},
-
+phone:{type:String},
+country:{type:String},
+city:{type:String},
 
 
 })

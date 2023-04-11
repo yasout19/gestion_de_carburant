@@ -148,6 +148,65 @@ else{
 
 
 })
+app.post('/updateuser',async(req,res)=>{
+    const user=await usermodule.findOne({email:req.body.email1})
+    if(user){
+        const newuser=await usermodule.updateOne({
+            email:req.body.email1,
+        },
+        {
+            $set:{
+                name:req.body.name,
+                email:req.body.email,
+                age:req.body.age,
+                role:req.body.role,
+            }
+
+        })
+      return res.json({status:"ok",data:newuser});
+    }
+    else{
+        return res.json({status:"err",msg:"not found"});
+    }
+
+
+
+
+
+})
+app.post('/updateadmin',async(req,res)=>{
+    console.log(req.body.name);
+    console.log(req.body.email);
+    console.log(req.body.phone);
+    console.log(req.body.country);
+    console.log(req.body.city);
+    const user=await usermodule.findOne({email:req.body.email})
+    if(user){
+        console.log(user);
+        const newuser=await usermodule.updateOne({
+            email:req.body.email,
+        },
+        {
+            $set:{
+                name:req.body.name,
+                phone:req.body.phone,
+                country:req.body.country,
+                city:req.body.city,
+            }
+
+        })
+        console.log(newuser);
+      return res.json({status:"ok",data:newuser});
+    }
+    else{
+        return res.json({status:"err",msg:"not found"});
+    }
+
+
+
+
+
+})
 
 app.use((req,res)=>{
     res.redirect('/users');

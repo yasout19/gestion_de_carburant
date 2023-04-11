@@ -83,8 +83,13 @@ export default function UserPage() {
   const [Email, setemail] = useState([]);
   const [Nom, setnom] = useState([]);
   const [Role, setrole] = useState([]);
+  const [upage, setupage] = useState([]);
+  const [upemail, setupemail] = useState([]);
+  const [upnom, setupnom] = useState([]);
+  const [uprole, setuprole] = useState([]);
   const [Pwd, setpwd] = useState([]);
   const[show,setShow]=useState("");
+  const[show3,setShow3]=useState("");
   const[em,setem]=useState("");
   const[show2,setShow2]=useState(false);
   const [page, setPage] = useState(0);
@@ -174,6 +179,13 @@ console.log(USER);
     setShow2(false);
 
   };
+  const handleShow3  = () => {
+    setShow3(true);
+  };
+  const handleClose3 = () => {
+    setShow3("");
+
+  };
   const createuser=()=>{
     axios.post('http://localhost:4000/createuser',{name:Nom,email:Email,pwd:Pwd,age:Age,role:Role,}).then(res=>{if(res.data.status==="ok"){alert("user created");window.location.reload();}else alert(res.data.msg);}).catch(err=>{console.log(err)})
   }
@@ -189,10 +201,19 @@ console.log(USER);
   const deletee=(eml)=>{
     setem(eml);
   }
+  const setup=(nm,em,rl,ag)=>{
+    setupemail(em);
+    setupage(ag);
+    setupnom(nm);
+    setuprole(rl);
+  }
+  const updateuser=()=>{
+    axios.post("http://localhost:4000/updateuser",{email1:em,name:upnom,email:upemail,age:upage,role:uprole,}).then(res=>{if(res.data.status==="ok"){alert("user updated");window.location.reload()}else{alert("something went wrong");}}).catch(err=>{console.log(err)})
+  }
   
   return (
     <>
-   
+  
       <Helmet>
         <title> Users </title>
       </Helmet>
@@ -200,11 +221,9 @@ console.log(USER);
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            User 
           </Typography>
-          <Button variant="contained" onClick={handleShow}>
-            New User
-          </Button>
+          <Button variant="contained" style={{width:'100px', }} onClick={handleShow}>New User</Button>
         </Stack>
            <Modal show={show} onHide={handleClose} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
             <Modal.Header closeButton>
@@ -251,7 +270,48 @@ console.log(USER);
                 <Button variant="contained" color="error" onClick={handleClose2}> Close </Button>
            </Modal.Footer>
           </Modal>
-
+          
+          <Modal show={show3} onHide={handleClose3} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">update user</Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{width: '300px',height: '700px'}}>
+                <form>
+                    <div class="mb-3">
+                        <label  class="form-label">nom</label>
+                        <input type="text" class="form-control" value={upnom} onChange={e=>setupnom(e.target.value)} />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">email</label>
+                        <input type="text" class="form-control" value={upemail} onChange={e=>setupemail(e.target.value)}/>
+                    </div>
+                    <div class="mb-3">
+                        <label  class="form-label">age</label>
+                        <input type="text" class="form-control" value={upage} onChange={e=>setupage(e.target.value)}/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">role</label>
+                        <input type="text" class="form-control"  value={uprole} onChange={e=>setuprole(e.target.value)}/>
+                    </div>
+                </form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="contained" color="primary" onClick={() => {handleClose3();updateuser();}}> Save  </Button>
+                <Button variant="contained" color="error" onClick={handleClose3}> Close </Button>
+           </Modal.Footer>
+          </Modal>
+          <Modal show={show2} onHide={handleClose2} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">confirm</Modal.Title>
+            </Modal.Header>
+            <Modal.Body >
+             <p>are you sure you want to delete user having email : {em}</p>   
+           </Modal.Body>
+           <Modal.Footer>
+                <Button variant="contained" color="primary" onClick={() => {handleClose2();deleteuser();}}> Yes  </Button>
+                <Button variant="contained" color="error" onClick={handleClose2}> Close </Button>
+           </Modal.Footer>
+          </Modal>
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
@@ -292,7 +352,7 @@ console.log(USER);
                         <TableCell align="left">{role}</TableCell>
 
                         <TableCell align="left">{age}</TableCell>
-                        <TableCell align="right" onClick={()=>{deletee(email)}}>
+                        <TableCell align="right" onClick={()=>{deletee(email);setup(name,email,role,age);}}>
                         <IconButton size="large" color="inherit" onClick={handleOpenMenu}> 
                             <Iconify icon={'eva:more-vertical-fill'}/>
                           </IconButton>
@@ -364,7 +424,7 @@ console.log(USER);
           },
         }}
       >
-        <MenuItem onClick={handleShow2}>
+        <MenuItem onClick={handleShow3}>
           <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
           Edit
         </MenuItem>

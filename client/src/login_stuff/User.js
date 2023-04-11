@@ -1,20 +1,21 @@
 import React,{Component} from "react";
 import axios from "axios";
+import "./Loading.css";
 export default class User extends Component{
     constructor(props){
         super(props)
         this.state={
             nom:"",
-            email:"hamham",
-            password:"123"
+            email:"",
+            password:""
     }
     }
     
 
     
     componentDidMount(){
-        axios.post("http://localhost:4000/getuser",{token:window.localStorage.getItem("token")}).then(result=>{this.setState({email:result.data.email})
-    console.log(result.data);this.setState({nom:result.data.name}); this.setState({password:result.data.pwd})
+        axios.post("http://localhost:4000/getuser",{token:window.localStorage.getItem("token")}).then(result=>{if(result.data.role==="admin"){window.location.href="/dashboard"}else{this.setState({email:result.data.email})
+    console.log(result.data);this.setState({nom:result.data.name}); this.setState({password:result.data.pwd})}
     })
     }
 
@@ -24,16 +25,13 @@ render(){
         window.location.href="./login"
     }
     return(
-        <div>
-            name:<h1>{this.state.nom}</h1>
-            email:<h1>{this.state.email}</h1>
-            pwd:<h1>{this.state.password}</h1>
-            <button onClick={logout}>log out</button>
-
-
-
-
-        </div>
+        <div class="loader">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+    
 
 
 

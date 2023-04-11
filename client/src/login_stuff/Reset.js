@@ -7,11 +7,11 @@ const validate=()=>{
 }
 return(
 <div>
-<section>
+<section class='section1'>
         <div class="form-box">
             <div class="form-value">
                 <form action="">
-                    <h2>your account's email</h2>
+                    <h2 class='titre'>your account's email</h2>
                     <div class="inputbox">
                         <ion-icon name="mail-outline"></ion-icon>
                         <input type="email" required placeholder=" " onChange={e=>{setemail(e.target.value)}} />

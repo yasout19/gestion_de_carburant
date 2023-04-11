@@ -4,7 +4,7 @@
     padding: 0;
     font-family: 'poppins',sans-serif;
 }
-section{
+.section1{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -28,7 +28,7 @@ section{
     align-items: center;
 
 }
-h2{
+.titre{
     font-size: 2em;
     color: #fff;
     text-align: center;

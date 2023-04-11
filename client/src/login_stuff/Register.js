@@ -1,7 +1,6 @@
 import {useState,useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-
 function Register() {
     const handlesubmit=(e)=>{
       e.preventDefault();
@@ -19,11 +18,11 @@ function Register() {
   }
   return (
     <div>
-       <section>
+       <section class='section1'>
         <div class="form-box">
             <div class="form-value">
                 <form action="" onSubmit={handlesubmit}>
-                    <h2>create account</h2>
+                    <h2 class='titre'>create account</h2>
                     <div class="inputbox">
                         <ion-icon name="mail-outline"></ion-icon>
                         <input type="email" required onChange={e=>{setemail(e.target.value)}}/>
