@@ -11,6 +11,10 @@ import {
   Unstable_Grid2 as Grid
 } from '@mui/material';
 import axios from 'axios';
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
 const city = [
   {
     value: 'agadir',
@@ -31,6 +35,7 @@ const city = [
 ];
 
 export const AccountProfileDetails = () => {
+  const [open,setopen]=useState("")
   const [values, setValues] = useState({firstName: "  ",
     lastName: " ",
     email: " ",
@@ -67,11 +72,33 @@ export const AccountProfileDetails = () => {
     []
   );
   const update=()=>{
-    axios.post("http://localhost:4000/updateadmin",{name:values.firstName,email:values.email,phone:values.phone,country:values.country,city:values.state}).then(res=>{if(res.data.status==="ok"){setValues({firstName: res.data.data.name, lastName: res.data.data.name,email: res.data.data.email,phone: res.data.data.phone,city: 'los-angeles',country: res.data.data.country,}); alert("user updated"); window.location.reload();}else{ alert("something went wrong");}}).catch(err=>{console.log(err);})
+    axios.post("http://localhost:4000/updateadmin",{name:values.firstName,email:values.email,phone:values.phone,country:values.country,city:values.state}).then(res=>{if(res.data.status==="ok"){setopen(true);}else{ alert("something went wrong");}}).catch(err=>{console.log(err);})
   }
 
   return (
     <div>
+       <Box sx={{ width: '100%' }}>
+      <Collapse in={open}>
+        <Alert
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setopen(false);
+                window.location.reload();
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+         user updated reload the page or close this alert to see the changes
+        </Alert>
+      </Collapse>
+    </Box>
     <form
       autoComplete="off"
       noValidate

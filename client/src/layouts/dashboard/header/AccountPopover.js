@@ -66,7 +66,7 @@ useEffect(()=>{
           }),
         }}
       >
-        <Avatar src={account.photoURL} alt="photoURL" />
+        <Avatar src={account.image} alt="photoURL" />
       </IconButton>
 
       <Popover

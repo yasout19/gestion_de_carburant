@@ -1,8 +1,3 @@
-// const user=['user1','user2','user3'];
-// const age=['age1','age2','age3'];
-// //console.log(user);
-// module.exports={user,age};
-//const { Int32 } = require('bson');
 const mongoose=require('mongoose')
 const userschema=new mongoose.Schema({
 name:{type:String,},
@@ -13,6 +8,7 @@ age:{type:String},
 phone:{type:String},
 country:{type:String},
 city:{type:String},
+image:{type:String},
 
 
 })

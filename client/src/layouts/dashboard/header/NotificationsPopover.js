@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import { set, sub } from 'date-fns';
 import { noCase } from 'change-case';
-import { faker } from '@faker-js/faker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { fToNow } from '../../../utils/formatTime';
 // @mui
 import {
   Box,
@@ -21,67 +21,48 @@ import {
   ListItemButton,
 } from '@mui/material';
 // utils
-import { fToNow } from '../../../utils/formatTime';
+// import { fToNow } from '../../../utils/formatTime';
 // components
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
+import { Link } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
 const NOTIFICATIONS = [
   {
-    id: faker.datatype.uuid(),
-    title: 'Your order is placed',
-    description: 'waiting for shipping',
-    avatar: null,
-    type: 'order_placed',
-    createdAt: set(new Date(), { hours: 10, minutes: 30 }),
-    isUnRead: true,
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: faker.name.fullName(),
-    description: 'answered to your comment on the Minimal',
-    avatar: '/assets/images/avatars/avatar_2.jpg',
-    type: 'friend_interactive',
-    createdAt: sub(new Date(), { hours: 3, minutes: 30 }),
-    isUnRead: true,
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'You have new message',
-    description: '5 unread messages',
-    avatar: null,
-    type: 'chat_message',
-    createdAt: sub(new Date(), { days: 1, hours: 3, minutes: 30 }),
+    name: "",
+    email:"",
+    message:"",
     isUnRead: false,
+    createdAt:"",
   },
-  {
-    id: faker.datatype.uuid(),
-    title: 'You have new mail',
-    description: 'sent from Guido Padberg',
-    avatar: null,
-    type: 'mail',
-    createdAt: sub(new Date(), { days: 2, hours: 3, minutes: 30 }),
-    isUnRead: false,
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'Delivery processing',
-    description: 'Your order is being shipped',
-    avatar: null,
-    type: 'order_shipped',
-    createdAt: sub(new Date(), { days: 3, hours: 3, minutes: 30 }),
-    isUnRead: false,
-  },
+  
 ];
 
 export default function NotificationsPopover() {
+
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      axios.get("http://localhost:4000/notification")
+        .then(res => {
+          setNotifications(res.data.reverse());
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }, 5000);
+  
+    // Cleanup function to clear interval when component unmounts
+    return () => clearInterval(interval);
+  }, []);
+  
 
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
 
   const [open, setOpen] = useState(null);
+
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -98,7 +79,12 @@ export default function NotificationsPopover() {
         isUnRead: false,
       }))
     );
+    axios.post("http://localhost:4000/markread").catch(err=>{console.log(err)})
+ 
   };
+  const markasread=(id)=>{
+    axios.post("http://localhost:4000/markreadone",{id:id}).catch(err=>{console.log(err)})
+  }
 
   return (
     <>
@@ -150,8 +136,8 @@ export default function NotificationsPopover() {
               </ListSubheader>
             }
           >
-            {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+            { notifications.filter((item) => item.isUnRead === true).map((notification) => (
+              <Link to="http://localhost:3000/dashboard/blog" onClick={()=>{markasread(notification._id);setOpen(null);notification.isUnRead=false}}> <NotificationItem key={notification._id} notification={notification} /></Link>
             ))}
           </List>
 
@@ -163,8 +149,8 @@ export default function NotificationsPopover() {
               </ListSubheader>
             }
           >
-            {notifications.slice(2, 5).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+            { notifications.filter((item) => item.isUnRead === false).slice(0,3).map((notification) => (
+              <Link to="http://localhost:3000/dashboard/blog" onClick={()=>{setOpen(null)}}><NotificationItem key={notification._id} notification={notification} /></Link>
             ))}
           </List>
         </Scrollbar>
@@ -185,13 +171,12 @@ export default function NotificationsPopover() {
 
 NotificationItem.propTypes = {
   notification: PropTypes.shape({
-    createdAt: PropTypes.instanceOf(Date),
-    id: PropTypes.string,
+    _id: PropTypes.string,
     isUnRead: PropTypes.bool,
-    title: PropTypes.string,
-    description: PropTypes.string,
-    type: PropTypes.string,
-    avatar: PropTypes.any,
+    name: PropTypes.string,
+    email:PropTypes.string,
+    message: PropTypes.string,
+   
   }),
 };
 
@@ -224,8 +209,9 @@ function NotificationItem({ notification }) {
               color: 'text.disabled',
             }}
           >
-            <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
+             <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
             {fToNow(notification.createdAt)}
+            
           </Typography>
         }
       />
@@ -238,39 +224,11 @@ function NotificationItem({ notification }) {
 function renderContent(notification) {
   const title = (
     <Typography variant="subtitle2">
-      {notification.title}
+     you have message from {notification.name}:
       <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-        &nbsp; {noCase(notification.description)}
+        &nbsp; {noCase(notification.message)}
       </Typography>
     </Typography>
   );
-
-  if (notification.type === 'order_placed') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_package.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'order_shipped') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_shipping.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'mail') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_mail.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'chat_message') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_chat.svg" />,
-      title,
-    };
-  }
-  return {
-    avatar: notification.avatar ? <img alt={notification.title} src={notification.avatar} /> : null,
-    title,
-  };
+  return {avatar: <img alt={notification.title} src="/assets/icons/ic_notification_chat.svg" />,title:title};
 }

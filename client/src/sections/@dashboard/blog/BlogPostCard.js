@@ -1,14 +1,12 @@
 import PropTypes from 'prop-types';
 // @mui
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Link, Card, Grid, Avatar, Typography, CardContent } from '@mui/material';
+import { Link, Card, Grid, Avatar, Typography, CardContent } from '@mui/material';
 // utils
 import { fDate } from '../../../utils/formatTime';
-import { fShortenNumber } from '../../../utils/formatNumber';
+
 //
 import SvgColor from '../../../components/svg-color';
-import Iconify from '../../../components/iconify';
-
 // ----------------------------------------------------------------------
 
 const StyledCardMedia = styled('div')({
@@ -33,13 +31,6 @@ const StyledAvatar = styled(Avatar)(({ theme }) => ({
   bottom: theme.spacing(-2),
 }));
 
-const StyledInfo = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexWrap: 'wrap',
-  justifyContent: 'flex-end',
-  marginTop: theme.spacing(3),
-  color: theme.palette.text.disabled,
-}));
 
 const StyledCover = styled('img')({
   top: 0,
@@ -57,16 +48,10 @@ BlogPostCard.propTypes = {
 };
 
 export default function BlogPostCard({ post, index }) {
-  const { cover, title, view, comment, share, author, createdAt } = post;
+  const { name, email, message,createdAt } = post;
   const latestPostLarge = index === 0;
   const latestPost = index === 1 || index === 2;
-
-  const POST_INFO = [
-    { number: comment, icon: 'eva:message-circle-fill' },
-    { number: view, icon: 'eva:eye-fill' },
-    { number: share, icon: 'eva:share-fill' },
-  ];
-
+  const cover="/assets/images/covers/cover_3.jpg";
   return (
     <Grid item xs={12} sm={latestPostLarge ? 12 : 6} md={latestPostLarge ? 6 : 3}>
       <Card sx={{ position: 'relative' }}>
@@ -105,8 +90,7 @@ export default function BlogPostCard({ post, index }) {
             }}
           />
           <StyledAvatar
-            alt={author.name}
-            src={author.avatarUrl}
+           alt={name} src=""
             sx={{
               ...((latestPostLarge || latestPost) && {
                 zIndex: 9,
@@ -118,7 +102,7 @@ export default function BlogPostCard({ post, index }) {
             }}
           />
 
-          <StyledCover alt={title} src={cover} />
+          <StyledCover src={cover} />
         </StyledCardMedia>
 
         <CardContent
@@ -132,7 +116,11 @@ export default function BlogPostCard({ post, index }) {
           }}
         >
           <Typography gutterBottom variant="caption" sx={{ color: 'text.disabled', display: 'block' }}>
-            {fDate(createdAt)}
+          {`${fDate(createdAt)}`}
+      <br />
+      {`${name}`}
+      <br />
+      {`${email}`}
           </Typography>
 
           <StyledTitle
@@ -146,27 +134,9 @@ export default function BlogPostCard({ post, index }) {
               }),
             }}
           >
-            {title}
+            {message}
           </StyledTitle>
 
-          <StyledInfo>
-            {POST_INFO.map((info, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  ml: index === 0 ? 0 : 1.5,
-                  ...((latestPostLarge || latestPost) && {
-                    color: 'grey.500',
-                  }),
-                }}
-              >
-                <Iconify icon={info.icon} sx={{ width: 16, height: 16, mr: 0.5 }} />
-                <Typography variant="caption">{fShortenNumber(info.number)}</Typography>
-              </Box>
-            ))}
-          </StyledInfo>
         </CardContent>
       </Card>
     </Grid>

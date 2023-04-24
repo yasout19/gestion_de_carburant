@@ -4,6 +4,9 @@ import { styled, alpha } from '@mui/material/styles';
 import { Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment } from '@mui/material';
 // component
 import Iconify from '../../../components/iconify';
+import axios from 'axios';
+import { Icon } from '@iconify/react';
+import reloadIcon from '@iconify-icons/mdi/reload';
 
 // ----------------------------------------------------------------------
 
@@ -36,9 +39,19 @@ UserListToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  users:PropTypes.array,
+  alerts:PropTypes.func,
+  reload:PropTypes.func,
 };
 
-export default function UserListToolbar({ numSelected, filterName, onFilterName }) {
+
+
+export default function UserListToolbar({ numSelected, filterName, onFilterName,users,alerts,reload}) {
+  
+  const deleteusers=()=>{
+    if(window.confirm("do you want to delete")){
+    axios.post("http://localhost:4000/deleteusers",{data:users}).then(res=>{if(res.data.status==="ok"){alerts(users);reload();}else alert(res.data.message);}).catch(err=>{console.log(err)})
+  }}
   return (
     <StyledRoot
       sx={{
@@ -54,7 +67,7 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
         </Typography>
       ) : (
         <StyledSearch
-          value={filterName}
+           value={filterName}
           onChange={onFilterName}
           placeholder="Search user..."
           startAdornment={
@@ -67,14 +80,14 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={deleteusers}>
             <Iconify icon="eva:trash-2-fill" />
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <Iconify icon="ic:round-filter-list" />
+        <Tooltip title="Reaload users">
+          <IconButton onClick={()=>{reload()}}>
+          <Icon icon={reloadIcon} />
           </IconButton>
         </Tooltip>
       )}

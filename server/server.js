@@ -5,13 +5,16 @@ const jwt=require('jsonwebtoken')
 const nodemailer=require('nodemailer')
 const jwt_secret="jhwduhwque28012382903809218092{}/.,;'lgdyuew72838738edhuiwsn`1`109-0129307"
 app.use(cors())
-app.use(express.json())
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000}));
 app.set("view engine","ejs");
 app.use(express.urlencoded({extended:false}))
 const mongoose=require("mongoose")
 mongoose.connect('mongodb+srv://first:agadir555@cluster0.jeq63iu.mongodb.net/test?retryWrites=true&w=majority').catch((err)=>console.log(err));
 const usermodule=require('./models/users');
 const voituremodule=require('./models/voitures');
+const feedback=require('./models/feedback');
+const carburant=require('./models/carburant.js');
 app.get('/users',async(req,res)=>{
 const user=await usermodule.find();
 res.json(user);
@@ -157,7 +160,6 @@ app.post('/updateuser',async(req,res)=>{
         {
             $set:{
                 name:req.body.name,
-                email:req.body.email,
                 age:req.body.age,
                 role:req.body.role,
             }
@@ -175,11 +177,6 @@ app.post('/updateuser',async(req,res)=>{
 
 })
 app.post('/updateadmin',async(req,res)=>{
-    console.log(req.body.name);
-    console.log(req.body.email);
-    console.log(req.body.phone);
-    console.log(req.body.country);
-    console.log(req.body.city);
     const user=await usermodule.findOne({email:req.body.email})
     if(user){
         console.log(user);
@@ -207,10 +204,83 @@ app.post('/updateadmin',async(req,res)=>{
 
 
 })
+app.post("/uploadimage",async(req,res)=>{
+    console.log(req.body.image);
+    console.log(req.body.email);
+const user=await usermodule.findOne({email:req.body.email})
+if(user){
+    const newuser=await usermodule.updateOne({
+        email:req.body.email,
+    },
+    {
+        $set:{
+           image:req.body.image,
+        }
 
+    })
+   return res.json({status:"ok"})
+
+}
+else{
+    return res.json({status:"err"})
+}
+
+})
+app.post("/deleteusers", async (req, res) => {
+    const email = req.body.data;
+    try {
+      await Promise.all(email.map(async data => {
+        await usermodule.deleteOne({ email: data });
+      }));
+      return res.json({ status: "ok" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error deleting users.' });
+    }
+  });
+app.post("/feedback",async(req,res)=>{
+    const feed = new feedback(req.body);
+    try {
+        await feed.save();
+        console.log(feed);
+        return res.json({status:"ok"});
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({error: "Error saving data"});
+      }
+})
+app.get('/notification',async(req,res)=>{
+    const notif=await feedback.find();
+    res.json(notif);
+    })
+app.post('/markread',async(req,res)=>{
+        const notif=await feedback.updateMany({},{$set:{isUnRead:false,}});
+        console.log(notif);
+        res.json(notif);
+})
+app.post('/markreadone',async(req,res)=>{
+    const notif=await feedback.updateOne({_id:req.body.id},{$set:{isUnRead:false,}});
+    console.log(notif);
+    res.json(notif);
+})
+app.get('/prix',async(req,res)=>{
+    const essence=await carburant.findOne({type:"essence"});
+    const gazoil=await carburant.findOne({type:"gazoil"});
+    try{
+//
+ console.log(essence.prix);
+ console.log(gazoil.prix);
+   return res.json({prix_g:gazoil.prix,prix_e:essence.prix});
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).json({error: "Error finding data"});
+    }
+})
 app.use((req,res)=>{
     res.redirect('/users');
 })
+
 
 app.listen('4000',()=>{console.log("lestening in port 4000")})
 console.log('server running...');

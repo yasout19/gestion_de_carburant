@@ -4,6 +4,7 @@ import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState,useEffect } from 'react';
 import {  Modal } from 'react-bootstrap';
+import { yellow} from '@mui/material/colors';
 // @mui
 import {
   Card,
@@ -23,6 +24,7 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  Box,
 } from '@mui/material';
 // components
 import Label from '../components/label';
@@ -31,9 +33,10 @@ import Scrollbar from '../components/scrollbar';
  import 'bootstrap/dist/css/bootstrap.min.css';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-// mock
-// import USERLIST from '../_mock/user';
 import axios from 'axios';
+import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
 
 // ----------------------------------------------------------------------
 
@@ -89,10 +92,15 @@ export default function UserPage() {
   const [uprole, setuprole] = useState([]);
   const [Pwd, setpwd] = useState([]);
   const[show,setShow]=useState("");
-  const[show3,setShow3]=useState("");
+  const[showupdate,setShowupdate]=useState("");
   const[em,setem]=useState("");
   const[show2,setShow2]=useState(false);
   const [page, setPage] = useState(0);
+  const [alert1, setalert1] = useState(false);
+  const [alert2, setalert2] = useState(false);
+  const [alert3, setalert3] = useState(false);
+  const [alert4, setalert4] = useState([]);
+
 
   const [order, setOrder] = useState('asc');
 
@@ -100,22 +108,29 @@ export default function UserPage() {
 
   const [orderBy, setOrderBy] = useState('name');
 
-  const [filterName, setFilterName] = useState('');
+  
+  const [search, setsearch] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
   useEffect(()=>{
     axios.get("http://localhost:4000/users").then(res=>{SETUSER(res.data)}).catch(err=>{console.log(err)})
 }, [])
-console.log(USER);
+const reloadusers=()=>{
+  axios.get("http://localhost:4000/users").then(res=>{SETUSER(res.data)}).catch(err=>{console.log(err)})
+}
   const USERLIST=USER && USER.map((data)=>({
     id:data.id,
     email:data.email,
     name:data.name,
     age:data.age,
     role:data.role,
+    image:data.image,
   }))
 
   const handleOpenMenu = (event) => {
+    handleCloseupdate();
+    handleclose2();
+    handleClose();
     setOpen(event.currentTarget);
   };
 
@@ -161,10 +176,10 @@ console.log(USER);
     setPage(0);
     setRowsPerPage(parseInt(event.target.value, 10));
   };
-
-  const handleFilterByName = (event) => {
+  const handlesearch = (event) => {
     setPage(0);
-    setFilterName(event.target.value);
+    setsearch(event.target.value);
+    console.log(event.target.value);
   };
     const handleShow   = () => {
     setShow(true);
@@ -173,31 +188,39 @@ console.log(USER);
     setShow("");
   };
   const handleShow2  = () => {
-    setShow2(true);
+    handleCloseMenu();
+    setTimeout(() => {
+      setShow2(true);
+    }, 100);
+   
   };
-  const handleClose2 = () => {
+  const handleclose2 = () => {
     setShow2(false);
 
+
   };
-  const handleShow3  = () => {
-    setShow3(true);
+  const handleShowupdate = () => {
+    handleCloseMenu();
+    setTimeout(() => {
+      setShowupdate(true);
+    }, 100); // Delay in milliseconds
   };
-  const handleClose3 = () => {
-    setShow3("");
+  const handleCloseupdate = () => {
+    setShowupdate("");
 
   };
   const createuser=()=>{
-    axios.post('http://localhost:4000/createuser',{name:Nom,email:Email,pwd:Pwd,age:Age,role:Role,}).then(res=>{if(res.data.status==="ok"){alert("user created");window.location.reload();}else alert(res.data.msg);}).catch(err=>{console.log(err)})
+    axios.post('http://localhost:4000/createuser',{name:Nom,email:Email,pwd:Pwd,age:Age,role:Role,}).then(res=>{if(res.data.status==="ok"){setalert2(true);reloadusers()}else alert(res.data.msg);}).catch(err=>{console.log(err)})
   }
   const deleteuser=()=>{
-    axios.post(`http://localhost:4000/deleteuser`,{email:em}).then(res=>{if(res.data.status==="ok"){alert("user deleted");window.location.reload()}else alert("somthing went wrong");}).catch(err=>{console.log(err);})
+    axios.post(`http://localhost:4000/deleteuser`,{email:em}).then(res=>{if(res.data.status==="ok"){setalert1(em);reloadusers()}else alert("somthing went wrong");}).catch(err=>{console.log(err);})
   }
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), search);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredUsers.length && !!search;
   const deletee=(eml)=>{
     setem(eml);
   }
@@ -208,12 +231,13 @@ console.log(USER);
     setuprole(rl);
   }
   const updateuser=()=>{
-    axios.post("http://localhost:4000/updateuser",{email1:em,name:upnom,email:upemail,age:upage,role:uprole,}).then(res=>{if(res.data.status==="ok"){alert("user updated");window.location.reload()}else{alert("something went wrong");}}).catch(err=>{console.log(err)})
+    axios.post("http://localhost:4000/updateuser",{email1:em,name:upnom,email:upemail,age:upage,role:uprole,}).then(res=>{if(res.data.status==="ok"){setalert3(true);reloadusers()}else{alert("something went wrong");}}).catch(err=>{console.log(err)})
   }
-  
+  const handlealert4=(value)=>{
+    setalert4(value);
+  }
   return (
     <>
-  
       <Helmet>
         <title> Users </title>
       </Helmet>
@@ -225,11 +249,90 @@ console.log(USER);
           </Typography>
           <Button variant="contained" style={{width:'100px', }} onClick={handleShow}>New User</Button>
         </Stack>
+        <Box sx={{ width: '100%' }}>
+          
+      <Collapse in={alert1}>
+        <Alert severity="warning" sx={{ color: yellow[700], backgroundColor: yellow[50] }}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setalert1(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          
+        >
+         user having email:"{alert1}" is deleted 
+        </Alert>
+      </Collapse>
+      <Collapse in={alert2}>
+        <Alert
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setalert2(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+         user created successfully
+        </Alert>
+      </Collapse>
+      <Collapse in={alert3}>
+        <Alert
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setalert3(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+         user updated successfully
+        </Alert>
+      </Collapse>
+      <Collapse in={alert4.length}>
+        <Alert severity="warning" sx={{ color: yellow[700], backgroundColor: yellow[50] }}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+               setalert4([]);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          
+        >
+         users having email:{alert4.join('| ')} is deleted 
+        </Alert>
+      </Collapse>
+    </Box>
            <Modal show={show} onHide={handleClose} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">Add a new user</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{width: '300px',height: '700px'}}>
+            <Modal.Body >
                 <form>
                     <div class="mb-3">
                         <label  class="form-label">nom</label>
@@ -248,8 +351,10 @@ console.log(USER);
                         <input type="text" class="form-control" onChange={e=>setage(e.target.value)}/>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">role</label>
-                        <input type="text" class="form-control" onChange={e=>setrole(e.target.value)}/>
+                      <select class="form-control" onChange={e=>setrole(e.target.value)}>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </select>
                     </div>
                 </form>
             </Modal.Body>
@@ -258,7 +363,7 @@ console.log(USER);
                 <Button variant="contained" color="error" onClick={handleClose}> Close </Button>
            </Modal.Footer>
           </Modal>
-          <Modal show={show2} onHide={handleClose2} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
+        <Modal show={show2} onHide={handleclose2} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">confirm</Modal.Title>
             </Modal.Header>
@@ -266,16 +371,15 @@ console.log(USER);
              <p>are you sure you want to delete user having email : {em}</p>   
            </Modal.Body>
            <Modal.Footer>
-                <Button variant="contained" color="primary" onClick={() => {handleClose2();deleteuser();}}> Yes  </Button>
-                <Button variant="contained" color="error" onClick={handleClose2}> Close </Button>
+                <Button variant="contained" color="primary" onClick={() => {handleclose2();deleteuser();}}> Yes  </Button>
+                <Button variant="contained" color="error" onClick={handleclose2}> Close </Button>
            </Modal.Footer>
           </Modal>
-          
-          <Modal show={show3} onHide={handleClose3} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
+          <Modal show={showupdate} onHide={handleCloseupdate} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">update user</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{width: '300px',height: '700px'}}>
+            <Modal.Body >
                 <form>
                     <div class="mb-3">
                         <label  class="form-label">nom</label>
@@ -283,38 +387,27 @@ console.log(USER);
                     </div>
                     <div class="mb-3">
                         <label class="form-label">email</label>
-                        <input type="text" class="form-control" value={upemail} onChange={e=>setupemail(e.target.value)}/>
+                        <input type="text" class="form-control" value={upemail} onChange={e=>setupemail(e.target.value)} disabled/>
                     </div>
                     <div class="mb-3">
                         <label  class="form-label">age</label>
                         <input type="text" class="form-control" value={upage} onChange={e=>setupage(e.target.value)}/>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">role</label>
-                        <input type="text" class="form-control"  value={uprole} onChange={e=>setuprole(e.target.value)}/>
+                      <select class="form-control" value={uprole} onChange={e=>setuprole(e.target.value)}>
+                         <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                      </select>
                     </div>
                 </form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="contained" color="primary" onClick={() => {handleClose3();updateuser();}}> Save  </Button>
-                <Button variant="contained" color="error" onClick={handleClose3}> Close </Button>
+                <Button variant="contained" color="primary" onClick={() => {handleCloseupdate();updateuser();}}> Save  </Button>
+                <Button variant="contained" color="error" onClick={handleCloseupdate}> Close </Button>
            </Modal.Footer>
           </Modal>
-          <Modal show={show2} onHide={handleClose2} style={{top: '50%',left: '50%',transform: 'translate(-50%, -50%)',width: '330px',height: '500px',bgcolor: 'background.paper'}}>
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">confirm</Modal.Title>
-            </Modal.Header>
-            <Modal.Body >
-             <p>are you sure you want to delete user having email : {em}</p>   
-           </Modal.Body>
-           <Modal.Footer>
-                <Button variant="contained" color="primary" onClick={() => {handleClose2();deleteuser();}}> Yes  </Button>
-                <Button variant="contained" color="error" onClick={handleClose2}> Close </Button>
-           </Modal.Footer>
-          </Modal>
-        <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-
+          <UserListToolbar numSelected={selected.length} filterName={search} onFilterName={handlesearch} users={selected} alerts={handlealert4} reload={reloadusers}/>
+          <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -329,7 +422,7 @@ console.log(USER);
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name,email,role, avatarUrl, age} = row;
+                    const { id, name,email,role, image, age} = row;
                     const selectedUser = selected.indexOf(email) !== -1;
 
                     return (
@@ -340,18 +433,20 @@ console.log(USER);
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
+                            <Avatar alt={name} src={image} />
                             <Typography variant="subtitle2" noWrap>
-                              {name}
+                            {name?name:<Label color={'default'}>{sentenceCase("vide")}</Label>}
                             </Typography>
                           </Stack>
                         </TableCell>
 
                         <TableCell align="left">{email}</TableCell>
 
-                        <TableCell align="left">{role}</TableCell>
+                        <TableCell align="left">{role?role:<Label color={'default'}>{sentenceCase("vide")}</Label>}</TableCell>
 
-                        <TableCell align="left">{age}</TableCell>
+                        <TableCell align="left">
+                        {age?age:<Label color={'default'}>{sentenceCase("vide")}</Label>}
+                        </TableCell>
                         <TableCell align="right" onClick={()=>{deletee(email);setup(name,email,role,age);}}>
                         <IconButton size="large" color="inherit" onClick={handleOpenMenu}> 
                             <Iconify icon={'eva:more-vertical-fill'}/>
@@ -382,7 +477,7 @@ console.log(USER);
 
                           <Typography variant="body2">
                             No results found for &nbsp;
-                            <strong>&quot;{filterName}&quot;</strong>.
+                            <strong>&quot;{search}&quot;</strong>.
                             <br /> Try checking for typos or using complete words.
                           </Typography>
                         </Paper>
@@ -424,12 +519,12 @@ console.log(USER);
           },
         }}
       >
-        <MenuItem onClick={handleShow3}>
+        <MenuItem onClick={()=>handleShowupdate()}>
           <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
           Edit
         </MenuItem>
 
-        <MenuItem sx={{ color: 'error.main' }} onClick={()=>{ handleCloseMenu();handleShow2();}}>
+        <MenuItem sx={{ color: 'error.main' }} onClick={()=>{handleShow2();}}>
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
           Delete
         </MenuItem>
