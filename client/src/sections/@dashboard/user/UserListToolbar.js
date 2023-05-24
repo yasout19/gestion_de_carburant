@@ -42,15 +42,16 @@ UserListToolbar.propTypes = {
   users:PropTypes.array,
   alerts:PropTypes.func,
   reload:PropTypes.func,
+  selec:PropTypes.func,
 };
 
 
 
-export default function UserListToolbar({ numSelected, filterName, onFilterName,users,alerts,reload}) {
+export default function UserListToolbar({ numSelected, filterName, onFilterName,users,alerts,reload,selec}) {
   
   const deleteusers=()=>{
     if(window.confirm("do you want to delete")){
-    axios.post("http://localhost:4000/deleteusers",{data:users}).then(res=>{if(res.data.status==="ok"){alerts(users);reload();}else alert(res.data.message);}).catch(err=>{console.log(err)})
+    axios.post("http://localhost:4000/deleteusers",{data:users}).then(res=>{if(res.data.status==="ok"){alerts(users);selec();reload();}else alert(res.data.message);}).catch(err=>{console.log(err)})
   }}
   return (
     <StyledRoot

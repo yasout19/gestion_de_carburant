@@ -1,8 +1,12 @@
 import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
-import DashboardLayout from './layouts/dashboard';
+import DashboardLayout from './layouts/dashboardadmin';
+import DashboardLayout2 from './layouts/dashboarduser';
 import SimpleLayout from './layouts/simple';
 //
+import NotificationPage from './pages/NotificationPage';
+import TripPage from'./pages/TripPage';
+import CarPage from './pages/CarPage';
 import BlogPage from './pages/BlogPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './login_stuff/Login';
@@ -19,6 +23,7 @@ import Web_site from './pages/Home';
 
 export default function Router() {
   const logged=Boolean(window.localStorage.getItem("logged"));
+  const admin=window.localStorage.getItem("admin")
   const routes = useRoutes([
     { path: '', 
       element:  logged? <User/>:<Web_site/>,
@@ -28,13 +33,32 @@ export default function Router() {
     },
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
-      children: [
+      element: (admin==='true')?<DashboardLayout />:<Navigate to="/dashboard2" />,
+      children: (admin==='true')?[
         { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
+        { path: 'Profile', element: <ProfilePage/> },
+      ]:[
+        { element: <Navigate to="/dashboard2/app" />, index: true },
+        { path: 'app', element: <DashboardAppPage /> },
+        { path: 'cars', element: <CarPage /> },
+        { path: 'trip', element: <TripPage /> },
+        { path: 'notification', element: <NotificationPage /> },
+        { path: 'Profile', element: <ProfilePage/> },
+      ],
+    },
+    {
+      path: '/dashboard2',
+      element: <DashboardLayout2 />,
+      children: [
+        { element: <Navigate to="/dashboard2/app" />, index: true },
+        { path: 'app', element: <DashboardAppPage /> },
+        { path: 'cars', element: <CarPage /> },
+        { path: 'trip', element: <TripPage /> },
+        { path: 'notification', element: <NotificationPage /> },
         { path: 'Profile', element: <ProfilePage/> },
       ],
     },

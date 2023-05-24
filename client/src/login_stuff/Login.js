@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {useState,useEffect} from 'react';
-import { Link ,Navigate} from 'react-router-dom';
+import {useState} from 'react';
+import { Link} from 'react-router-dom';
 import './Login.css';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -60,7 +60,8 @@ return(
             </div>
         </div>
     </section>
-    
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </div>
 
 

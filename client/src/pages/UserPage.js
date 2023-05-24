@@ -82,15 +82,15 @@ function applySortFilter(array, comparator, query) {
 export default function UserPage() {
   const[USER,SETUSER]=useState([]);
   const [open, setOpen] = useState("");
-  const [Age, setage] = useState([]);
-  const [Email, setemail] = useState([]);
-  const [Nom, setnom] = useState([]);
-  const [Role, setrole] = useState([]);
-  const [upage, setupage] = useState([]);
-  const [upemail, setupemail] = useState([]);
-  const [upnom, setupnom] = useState([]);
-  const [uprole, setuprole] = useState([]);
-  const [Pwd, setpwd] = useState([]);
+  const [Age, setage] = useState("");
+  const [Email, setemail] = useState("");
+  const [Nom, setnom] = useState("");
+  const [Role, setrole] = useState("");
+  const [upage, setupage] = useState("");
+  const [upemail, setupemail] = useState("");
+  const [upnom, setupnom] = useState("");
+  const [uprole, setuprole] = useState("");
+  const [Pwd, setpwd] = useState("");
   const[show,setShow]=useState("");
   const[showupdate,setShowupdate]=useState("");
   const[em,setem]=useState("");
@@ -133,7 +133,13 @@ const reloadusers=()=>{
     handleClose();
     setOpen(event.currentTarget);
   };
-
+  const clearvar=()=>{
+    setemail("");
+    setnom("");
+    setpwd("");
+    setrole("user");
+    setage("");
+  }
   const handleCloseMenu = () => {
     setOpen("");
   };
@@ -182,6 +188,7 @@ const reloadusers=()=>{
     console.log(event.target.value);
   };
     const handleShow   = () => {
+      clearvar();
     setShow(true);
   };
   const handleClose = () => {
@@ -235,6 +242,9 @@ const reloadusers=()=>{
   }
   const handlealert4=(value)=>{
     setalert4(value);
+  }
+  const cancelselec=()=>{
+    setSelected([]);
   }
   return (
     <>
@@ -324,7 +334,7 @@ const reloadusers=()=>{
           }
           
         >
-         users having email:{alert4.join('| ')} is deleted 
+         users having email:{alert4.join('| ')} deleted 
         </Alert>
       </Collapse>
     </Box>
@@ -406,7 +416,7 @@ const reloadusers=()=>{
                 <Button variant="contained" color="error" onClick={handleCloseupdate}> Close </Button>
            </Modal.Footer>
           </Modal>
-          <UserListToolbar numSelected={selected.length} filterName={search} onFilterName={handlesearch} users={selected} alerts={handlealert4} reload={reloadusers}/>
+          <UserListToolbar numSelected={selected.length} filterName={search} onFilterName={handlesearch} users={selected} alerts={handlealert4} reload={reloadusers} selec={cancelselec}/>
           <Card>
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>

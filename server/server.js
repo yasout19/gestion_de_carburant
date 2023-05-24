@@ -4,17 +4,24 @@ const cors=require('cors')
 const jwt=require('jsonwebtoken')
 const nodemailer=require('nodemailer')
 const jwt_secret="jhwduhwque28012382903809218092{}/.,;'lgdyuew72838738edhuiwsn`1`109-0129307"
+// controllers
+const {ReadCar, CreateCar, DeleteCar, UpdateCar, FindCarByMatricule} = require('./controllers/Cars')
+const {ReadTrip, CreateTrip, DeleteTrip, UpdateTrip} = require('./controllers/Trips')
+const {ReadEsence,ReadGazoil} = require('./controllers/Fuels')
+//---------------------------------------------------------------------------------------
 app.use(cors())
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000}));
 app.set("view engine","ejs");
 app.use(express.urlencoded({extended:false}))
 const mongoose=require("mongoose")
-mongoose.connect('mongodb+srv://first:agadir555@cluster0.jeq63iu.mongodb.net/test?retryWrites=true&w=majority').catch((err)=>console.log(err));
+mongoose.connect('mongodb+srv://pfe:HaRgkTjgWPCYZKGk@cluster0.asfexvl.mongodb.net/pfe').catch((err)=>console.log(err));
 const usermodule=require('./models/users');
 const voituremodule=require('./models/voitures');
 const feedback=require('./models/feedback');
 const carburant=require('./models/carburant.js');
+const CarModel = require('./models/Cars.js');
+const tripmodel=require('./models/Trips');
 app.get('/users',async(req,res)=>{
 const user=await usermodule.find();
 res.json(user);
@@ -238,6 +245,30 @@ app.post("/deleteusers", async (req, res) => {
       return res.status(500).json({ message: 'Error deleting users.' });
     }
   });
+  app.post("/deletecars", async (req, res) => {
+    const matricule = req.body.data;
+    try {
+      await Promise.all(matricule.map(async data => {
+        await CarModel.deleteOne({ matricule: data });
+      }));
+      return res.json({ status: "ok" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error deleting carss.' });
+    }
+  });
+  app.post("/deletetrips", async (req, res) => {
+    const id = req.body.data;
+    try {
+      await Promise.all(id.map(async data => {
+        await tripmodel.findByIdAndDelete(data);
+      }));
+      return res.json({ status: "ok" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error deleting trips.' });
+    }
+  });
 app.post("/feedback",async(req,res)=>{
     const feed = new feedback(req.body);
     try {
@@ -264,7 +295,7 @@ app.post('/markreadone',async(req,res)=>{
     res.json(notif);
 })
 app.get('/prix',async(req,res)=>{
-    const essence=await carburant.findOne({type:"essence"});
+    const essence=await carburant.findOne({type:"esence"});
     const gazoil=await carburant.findOne({type:"gazoil"});
     try{
 //
@@ -277,6 +308,38 @@ app.get('/prix',async(req,res)=>{
         return res.status(500).json({error: "Error finding data"});
     }
 })
+app.post('/trips',async(req,res) => {   
+  try {
+      const trips = await tripmodel.find({email:req.body.email})
+      if (!trips || trips.length === 0) {
+          return res.json({ error: "No data" })
+      }
+      console.log(trips);
+      res.send(trips)
+  }catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Server error" })
+  }
+});
+// Car
+app.post('/cars',ReadCar)
+app.post('/createCar',CreateCar)
+app.delete('/deleteCar/:matricule',DeleteCar)
+app.post('/updateCar',UpdateCar)
+app.post('/getCarByMatricule',FindCarByMatricule)
+//---------------------------------------------------------------------------------------
+
+// Trip
+//app.post('/trips',ReadTrip)
+app.post('/createTrip',CreateTrip)
+app.delete('/deleteTrip/:matricule',DeleteTrip)
+app.post('/updateTrip',UpdateTrip)
+//---------------------------------------------------------------------------------------
+
+// Fuel
+app.get('/esence',ReadEsence)
+app.get('/gazoil',ReadGazoil)
+//---------------------------------------------------------------------------------------
 app.use((req,res)=>{
     res.redirect('/users');
 })

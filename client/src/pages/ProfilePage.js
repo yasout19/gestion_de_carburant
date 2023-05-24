@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Box, Container, Stack, Typography, Unstable_Grid2 as Grid } from '@mui/material';
-import DashboardLayout from '../layouts/dashboard';
+import DashboardLayout from '../layouts/dashboardadmin';
 import { AccountProfile } from '../sections/@dashboard/account/Account-profile';
 import { AccountProfileDetails} from '../sections/@dashboard/account/Account-profile-details';
 import axios from 'axios';
